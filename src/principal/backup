@@ -1,0 +1,192 @@
+public Iniciar() {
+        System.out.print(".");
+        criar();
+
+    }
+
+    
+
+    public static void main(String[] args) {
+        System.out.print("Iniciando.");
+        new Iniciar();
+    }
+
+    /**
+     * File arquivo1 = new File("C:\\Users\\Qualidade\\Desktop\\teste1.txt");
+     *
+     * File arquivo2 = new File("C:\\Users\\Qualidade\\Desktop\\test2.txt");
+     *
+     * System.out.println(arquivo1.isFile());
+     *
+     * boolean con = arquivo1.renameTo(arquivo2);
+     *
+     *
+     * if(con) System.out.println("sucesso"); else System.out.println("falhou");
+     *
+     *
+     */
+    
+    
+    public void criar() {
+        
+        File[] arquivos = null;
+        System.out.print(".");
+        File diretorio = new File("C:\\Users\\Qualidade\\Desktop\\CertificadosEmail");
+        
+        System.out.print(".");
+        arquivos = diretorio.listFiles();
+        
+        System.out.print(".");
+        
+        if (arquivos != null) {
+            System.out.print(".");
+            for (File a : arquivos) {
+
+                if (a.isDirectory()) {
+                    continue;
+                }
+
+                try {
+
+                    String depois = iniciar(a);
+
+                    if (depois == null) {
+                        System.out.print(".");
+                        continue;
+                    }
+
+                    File novo = new File("C:\\Users\\Qualidade\\Desktop\\Renomeados\\" + depois);
+                    File removivel = new File("E:\\Teste\\" + depois);
+                    System.out.println("C:\\Users\\Qualidade\\Desktop\\Renomeados\\" + depois);
+
+                    copyFile(a, novo);
+                    renomear(a, removivel);
+
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                    continue;
+                }
+            }
+            System.out.println("Terminou");
+        }
+    }
+
+    public String iniciar(File localizacao) {
+
+        PDDocument pdfDoc = null;
+        String text = null;
+        PDFTextStripper stripper = null;
+        try {
+            pdfDoc = PDDocument.load(localizacao);
+
+            stripper = new PDFTextStripper();
+
+            text = stripper.getText(pdfDoc);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            try {
+                if (pdfDoc != null) {
+                    pdfDoc.close();
+                }
+            } catch (IOException ex) {
+                System.out.println("erro errado");
+            }
+        }
+        String[] texto = text.split("\n");
+
+        if (texto.length == 215) {
+            if (eValido(texto, 12)) {
+                int tamanho = substituir(texto[12]).length();
+                return substituir(texto[12]).substring(0, tamanho - 1) + ".pdf";
+            } else if (eValido(texto, 6)) {
+                int tamanho = substituir(texto[6]).length();
+                return substituir(texto[6]).substring(0, tamanho - 1) + ".pdf";
+            }
+        } else {
+            if (eValido(texto, 13)) {
+                int tamanho = substituir(texto[13]).length();
+                return substituir(texto[13]).substring(0, tamanho - 1) + ".pdf";
+            } else if (eValido(texto, 6)) {
+                int tamanho = substituir(texto[6]).length();
+                return substituir(texto[6]).substring(0, tamanho - 1) + ".pdf";
+            }
+        }
+        // String conteudo = pdf.ge
+        return null;
+    }
+    
+    public String substituir(String arg0) {
+        String arg1 = null;
+
+        //invalidos \ / : * ? "< > |
+        arg1 = arg0.replaceAll("/", "-");
+        arg1 = arg1.replaceAll(":", "");
+        arg1 = arg1.replaceAll("<", "");
+        arg1 = arg1.replaceAll(">", "");
+        arg1 = arg1.replaceAll("|", "");
+        arg1 = arg1.replaceAll("    ", "");
+        arg1 = arg1.replace('\"', ' ');
+        arg1 = arg1.replace('(', ' ');
+        arg1 = arg1.replace(')', ' ');
+        arg1 = arg1.replaceAll("\n", "");
+
+        return arg1;
+    }
+
+    public void renomear(File antes, File depois) {
+
+        boolean sucesso = antes.renameTo(depois);
+
+        if (sucesso) {
+            System.out.println("Renomeou");
+        } else {
+            System.out.println("Deu rui, vou excruir :3");
+            boolean a = antes.delete();
+            if (a) {
+                System.out.println("Eu excrui mermo");
+            } else {
+                System.out.println("Nem excruir ele quer, pode desistir");
+            }
+        }
+
+    }
+
+    public void copyFile(File source, File destination) throws IOException {
+        if (destination.exists()) {
+            destination.delete();
+        }
+
+        FileChannel sourceChannel = null;
+        FileChannel destinationChannel = null;
+
+        try {
+            sourceChannel = new FileInputStream(source).getChannel();
+            destinationChannel = new FileOutputStream(destination).getChannel();
+            sourceChannel.transferTo(0, sourceChannel.size(),
+                    destinationChannel);
+        } finally {
+            if (sourceChannel != null && sourceChannel.isOpen()) {
+                sourceChannel.close();
+            }
+            if (destinationChannel != null && destinationChannel.isOpen()) {
+                destinationChannel.close();
+            }
+        }
+    }
+
+    public boolean eValido(String[] texto, int index) {
+
+        return texto[index].startsWith("PA")
+                || texto[index].startsWith("PF")
+                || texto[index].startsWith("PO")
+                || texto[index].startsWith("CO")
+                || texto[index].startsWith("PI")
+                || texto[index].startsWith("CH")
+                || texto[index].startsWith("BA")
+                || texto[index].startsWith("AB")
+                || texto[index].startsWith("RE")
+                || texto[index].startsWith("AR");
+    }
